@@ -274,7 +274,7 @@ const Frame = ({ id }) => {
                                     : (generationMode === 'image' ? 'Analyzing Image...' : 'Parsing Prompt...')}
                             </div>
                         </div>
-                    ) : frame.content.outputImage ? (
+                    ) : (frame.content.outputImage && generationMode === 'image') ? (
                         <div style={{ flex: 1, position: 'relative', width: '100%', height: '100%' }}>
                             <img src={frame.content.outputImage} alt="Result" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
 
