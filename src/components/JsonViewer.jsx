@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Copy, Check } from 'lucide-react';
+import { flattenJsonToParagraph } from '../utils/promptUtils';
 
 const JsonViewer = ({ jsonString, title }) => {
-    const [copied, setCopied] = useState(false);
+    const [copied, setCopied] = useState(false); // 'json', 'paragraph', or false
 
     // Determine content and language
     let displayContent = jsonString;
@@ -20,9 +21,16 @@ const JsonViewer = ({ jsonString, title }) => {
         // Fallback to json/text if parse fails
     }
 
-    const handleCopy = () => {
+    const handleCopyJson = () => {
         navigator.clipboard.writeText(displayContent);
-        setCopied(true);
+        setCopied('json');
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleCopyParagraph = () => {
+        const text = flattenJsonToParagraph(jsonString);
+        navigator.clipboard.writeText(text);
+        setCopied('paragraph');
         setTimeout(() => setCopied(false), 2000);
     };
 
@@ -48,36 +56,45 @@ const JsonViewer = ({ jsonString, title }) => {
                 {title}
             </div>
 
-            <button
-                onClick={handleCopy}
-                style={{
-                    position: 'absolute',
-                    top: '10px',
-                    right: '10px',
-                    zIndex: 10,
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    borderRadius: '6px',
-                    padding: '6px',
-                    cursor: 'pointer',
-                    color: copied ? '#4ade80' : 'var(--text-secondary)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    fontSize: '0.8rem',
-                    transition: 'all 0.2s'
-                }}
-            >
-                {copied ? (
-                    <>
-                        <Check size={14} /> Copied!
-                    </>
-                ) : (
-                    <>
-                        <Copy size={14} /> Copy text
-                    </>
-                )}
-            </button>
+            <div style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 10, display: 'flex', gap: '8px' }}>
+                <button
+                    onClick={handleCopyJson}
+                    style={{
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        borderRadius: '6px',
+                        padding: '6px 10px',
+                        cursor: 'pointer',
+                        color: copied === 'json' ? '#4ade80' : 'var(--text-secondary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        fontSize: '0.75rem',
+                        transition: 'all 0.2s'
+                    }}
+                >
+                    {copied === 'json' ? <><Check size={14} /> Copied!</> : <><span style={{ fontFamily: 'monospace' }}>{`{ }`}</span> JSON</>}
+                </button>
+
+                <button
+                    onClick={handleCopyParagraph}
+                    style={{
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        borderRadius: '6px',
+                        padding: '6px 10px',
+                        cursor: 'pointer',
+                        color: copied === 'paragraph' ? '#4ade80' : 'var(--text-secondary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        fontSize: '0.75rem',
+                        transition: 'all 0.2s'
+                    }}
+                >
+                    {copied === 'paragraph' ? <><Check size={14} /> Copied!</> : <><span style={{ fontWeight: 'bold' }}>¶</span> Prompt</>}
+                </button>
+            </div>
 
             <div style={{
                 height: '100%',

@@ -4,6 +4,7 @@ import useAppStore from '../store/useAppStore';
 import { RefreshCcw, Image as ImageIcon, Type, Trash2, FolderOpen, Save, Copy, Check } from 'lucide-react';
 import ImageUpload from './ImageUpload';
 import JsonViewer from './JsonViewer';
+import { flattenJsonToParagraph } from '../utils/promptUtils';
 
 // Helper to extract a title/role from the prompt text
 const getPromptTitle = (text) => {
@@ -291,34 +292,58 @@ const Frame = ({ id }) => {
                                 justifyContent: 'space-between',
                                 alignItems: 'center'
                             }}>
-                                <button
-                                    onClick={() => {
-                                        let text = "";
-                                        try {
-                                            const p = JSON.parse(frame.content.promptJson);
-                                            text = p.raw_output || p.prompt || p.image_prompt || frame.content.promptJson;
-                                        } catch (e) { text = frame.content.promptJson; }
-                                        navigator.clipboard.writeText(text);
-                                        setCopied(true);
-                                        setTimeout(() => setCopied(false), 2000);
-                                    }}
-                                    style={{
-                                        color: copied ? '#4ade80' : 'white',
-                                        background: 'rgba(255,255,255,0.1)',
-                                        padding: '6px 10px',
-                                        borderRadius: '4px',
-                                        fontSize: '0.8rem',
-                                        backdropFilter: 'blur(4px)',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '6px',
-                                        transition: 'all 0.2s',
-                                        border: 'none',
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    {copied ? <><Check size={14} /> Copied!</> : <><Copy size={14} /> Copy Prompt</>}
-                                </button>
+                                {/* Copy Controls */}
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button
+                                        onClick={() => {
+                                            const text = frame.content.promptJson;
+                                            navigator.clipboard.writeText(text);
+                                            setCopied('json');
+                                            setTimeout(() => setCopied(false), 2000);
+                                        }}
+                                        style={{
+                                            color: copied === 'json' ? '#4ade80' : 'white',
+                                            background: 'rgba(255,255,255,0.1)',
+                                            padding: '6px 10px',
+                                            borderRadius: '4px',
+                                            fontSize: '0.8rem',
+                                            backdropFilter: 'blur(4px)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '6px',
+                                            transition: 'all 0.2s',
+                                            border: 'none',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {copied === 'json' ? <><Check size={14} /> Copied!</> : <><span style={{ fontFamily: 'monospace' }}>{`{ }`}</span> JSON</>}
+                                    </button>
+
+                                    <button
+                                        onClick={() => {
+                                            const text = flattenJsonToParagraph(frame.content.promptJson);
+                                            navigator.clipboard.writeText(text);
+                                            setCopied('paragraph');
+                                            setTimeout(() => setCopied(false), 2000);
+                                        }}
+                                        style={{
+                                            color: copied === 'paragraph' ? '#4ade80' : 'white',
+                                            background: 'rgba(255,255,255,0.1)',
+                                            padding: '6px 10px',
+                                            borderRadius: '4px',
+                                            fontSize: '0.8rem',
+                                            backdropFilter: 'blur(4px)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '6px',
+                                            transition: 'all 0.2s',
+                                            border: 'none',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {copied === 'paragraph' ? <><Check size={14} /> Copied!</> : <><span style={{ fontWeight: 'bold' }}>¶</span> Prompt</>}
+                                    </button>
+                                </div>
 
                                 <button
                                     onClick={() => toggleFrameFlip(id)}
