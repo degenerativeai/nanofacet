@@ -97,7 +97,7 @@ const parseJSONWithRecovery = (text) => {
 export const analyzeImageVisualArchitect = async (
   sourceImageBase64,
   systemInstruction = null,
-  modelId = 'gemini-2.0-flash'
+  modelId = 'gemini-3-pro-preview'
 ) => {
   const apiKey = useAppStore.getState().apiKey;
   if (!apiKey) throw new Error("API Key missing");
@@ -109,6 +109,7 @@ export const analyzeImageVisualArchitect = async (
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
     model: modelId,
+    systemInstruction: systemInstruction, // Proper System Instruction placement
     safetySettings: [
       { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
       { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
@@ -121,7 +122,7 @@ export const analyzeImageVisualArchitect = async (
 
   try {
     const result = await model.generateContent([
-      systemInstruction,
+      // systemInstruction is now in config, so we just send the image
       { inlineData: { mimeType, data } }
     ]);
 

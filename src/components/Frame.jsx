@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import useAppStore from '../store/useAppStore';
-import { RefreshCcw, Image as ImageIcon, Type, Trash2, FolderOpen, Save } from 'lucide-react';
+import { RefreshCcw, Image as ImageIcon, Type, Trash2, FolderOpen, Save, Copy, Check } from 'lucide-react';
 import ImageUpload from './ImageUpload';
 import JsonViewer from './JsonViewer';
 
@@ -27,6 +27,7 @@ const getPromptTitle = (text) => {
 const Frame = ({ id }) => {
     const { frames, toggleFrameFlip, toggleInputMode, resetFrame, activeFrameCount, generationMode, setGenerationMode, library, addToLibrary, removeFromLibrary, updateFrameContent } = useAppStore();
     const frame = frames.find(f => f.id === id);
+    const [copied, setCopied] = useState(false);
 
     // Animation Variants
     const variants = {
@@ -292,25 +293,31 @@ const Frame = ({ id }) => {
                             }}>
                                 <button
                                     onClick={() => {
-                                        // Simple Copy Logic
                                         let text = "";
                                         try {
                                             const p = JSON.parse(frame.content.promptJson);
                                             text = p.raw_output || p.prompt || p.image_prompt || frame.content.promptJson;
                                         } catch (e) { text = frame.content.promptJson; }
                                         navigator.clipboard.writeText(text);
-                                        alert("Prompt Copied!");
+                                        setCopied(true);
+                                        setTimeout(() => setCopied(false), 2000);
                                     }}
                                     style={{
-                                        color: 'white',
+                                        color: copied ? '#4ade80' : 'white',
                                         background: 'rgba(255,255,255,0.1)',
                                         padding: '6px 10px',
                                         borderRadius: '4px',
                                         fontSize: '0.8rem',
-                                        backdropFilter: 'blur(4px)'
+                                        backdropFilter: 'blur(4px)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        transition: 'all 0.2s',
+                                        border: 'none',
+                                        cursor: 'pointer'
                                     }}
                                 >
-                                    Copy Prompt
+                                    {copied ? <><Check size={14} /> Copied!</> : <><Copy size={14} /> Copy Prompt</>}
                                 </button>
 
                                 <button
