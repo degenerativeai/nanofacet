@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import useAppStore from '../store/useAppStore';
-import { Play, Settings2, Image as ImageIcon } from 'lucide-react';
+import { Play, Settings2, Image as ImageIcon, Download } from 'lucide-react';
+import { downloadImagesAsZip } from '../utils/fileUtils';
 
 const ControlBar = () => {
     const {
         aspectRatio, resolution, isAnalyzing, activeFrameCount,
-        imageProvider, wavespeedApiKey,
+        imageProvider, wavespeedApiKey, frames,
         setAspectRatio, setResolution, setActiveFrameCount, generatePrompts,
         setImageProvider, setWavespeedApiKey
     } = useAppStore();
@@ -24,6 +25,22 @@ const ControlBar = () => {
 
     const handleAnalyze = () => {
         generatePrompts();
+    };
+
+    const handleDownloadAll = () => {
+        const imagesToDownload = frames
+            .filter(f => f.content.outputImage)
+            .map(f => ({
+                url: f.content.outputImage,
+                filename: `nanofacet-result-${f.id}.png`
+            }));
+
+        if (imagesToDownload.length === 0) {
+            alert("No images generated to download.");
+            return;
+        }
+
+        downloadImagesAsZip(imagesToDownload, 'nanofacet-batch.zip');
     };
 
     return (
@@ -184,27 +201,26 @@ const ControlBar = () => {
             </div>
 
             {/* Analyze Button */}
-            <button
-                onClick={handleAnalyze}
-                disabled={isAnalyzing}
-                style={{
-                    background: isAnalyzing ? 'var(--bg-glass)' : 'linear-gradient(135deg, var(--accent-primary), #a855f7)',
-                    padding: '12px 32px',
-                    borderRadius: 'var(--radius-md)',
-                    color: 'white',
-                    fontWeight: 'bold',
-                    letterSpacing: '1px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    boxShadow: isAnalyzing ? 'none' : '0 0 20px rgba(79, 70, 229, 0.4)',
-                    transition: 'var(--transition-smooth)',
-                    opacity: isAnalyzing ? 0.7 : 1
-                }}
-            >
-                <Play size={18} fill="currentColor" />
-                {isAnalyzing ? 'ANALYZING...' : 'ANALYZE'}
-            </button>
+            <div style={{ display: 'flex', gap: '16px' }}>
+                <button
+                    onClick={handleDownloadAll}
+                    className="action-button btn-secondary"
+                    title="Download All as ZIP"
+                >
+                    <Download size={18} />
+                    <span>DOWNLOAD ALL</span>
+                </button>
+
+                <button
+                    onClick={handleAnalyze}
+                    disabled={isAnalyzing}
+                    className={`action-button btn-primary ${isAnalyzing ? 'analyzing' : ''}`}
+                    style={{ opacity: isAnalyzing ? 0.7 : 1 }}
+                >
+                    <Play size={18} fill="currentColor" />
+                    {isAnalyzing ? 'ANALYZING...' : 'ANALYZE'}
+                </button>
+            </div>
         </div>
     );
 };

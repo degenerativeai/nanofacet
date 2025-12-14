@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import useAppStore from '../store/useAppStore';
-import { RefreshCcw, Image as ImageIcon, Type, Trash2, FolderOpen, Save, Copy, Check } from 'lucide-react';
+import { RefreshCcw, Image as ImageIcon, Type, Trash2, FolderOpen, Save, Copy, Check, Download } from 'lucide-react';
 import ImageUpload from './ImageUpload';
 import JsonViewer from './JsonViewer';
 import { flattenJsonToParagraph } from '../utils/promptUtils';
+import { downloadImage } from '../utils/fileUtils';
 
 // Helper to extract a title/role from the prompt text
 const getPromptTitle = (text) => {
@@ -345,22 +346,45 @@ const Frame = ({ id }) => {
                                     </button>
                                 </div>
 
-                                <button
-                                    onClick={() => toggleFrameFlip(id)}
-                                    style={{
-                                        color: 'var(--accent-primary)',
-                                        background: 'rgba(0,0,0,0.6)',
-                                        padding: '6px 10px',
-                                        borderRadius: '4px',
-                                        fontSize: '0.8rem',
-                                        fontWeight: 'bold',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '4px'
-                                    }}
-                                >
-                                    <RefreshCcw size={14} /> Flip
-                                </button>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button
+                                        onClick={() => downloadImage(frame.content.outputImage, `nanofacet-result-${id}.png`)}
+                                        style={{
+                                            color: 'white',
+                                            background: 'rgba(0,0,0,0.6)',
+                                            padding: '6px 10px',
+                                            borderRadius: '4px',
+                                            fontSize: '0.8rem',
+                                            fontWeight: 'bold',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s'
+                                        }}
+                                        title="Download Image"
+                                    >
+                                        <Download size={14} />
+                                    </button>
+
+                                    <button
+                                        onClick={() => toggleFrameFlip(id)}
+                                        style={{
+                                            color: 'var(--accent-primary)',
+                                            background: 'rgba(0,0,0,0.6)',
+                                            padding: '6px 10px',
+                                            borderRadius: '4px',
+                                            fontSize: '0.8rem',
+                                            fontWeight: 'bold',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px'
+                                        }}
+                                    >
+                                        <RefreshCcw size={14} /> Flip
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ) : (frame.content.promptJson ? (

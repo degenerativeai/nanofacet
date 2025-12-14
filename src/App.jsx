@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { LogOut } from 'lucide-react'
+import './App.css'
 import Frame from './components/Frame'
 import ControlBar from './components/ControlBar'
 import WelcomeScreen from './components/WelcomeScreen'
